@@ -54,16 +54,17 @@ def home():
 def precip():
     # return the previous year's percipitaion as a json
     # Calculate the date one year from the last date in data set.
-    previousYear = dt.date(2017, 8, 23) - dt.timedelta(days=365)
-    #previousYear
+    previous_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
+
 
     # Perform a query to retrive the data and precipitation scores
     results = session.query(measurement.date, measurement.prcp).\
-        filter(measurement.date >= previousYear).all()
+        filter(measurement.date >= previous_year).all()
     
     session.close()
     #dictionary with the date as the key and percipitation (prcp) as the value 
     percipitation = {date: prcp for date, prcp in results}
+
     # convert to a json
     return jsonify(percipitation)
 
@@ -75,29 +76,29 @@ def stations():
     results = session.query(station.station).all()
     session.close()
 
-    stationList = list(np.ravel(results))
+    station_list = list(np.ravel(results))
 
     # convert to a json and display
-    return jsonify(stationList)
+    return jsonify(station_list)
 
 # /api/v1.0/tobs route 
 @app.route("/api/v1.0/tobs") 
 def temperatures():
     # return the previous year tempratures
     # Calculate the date one year from the last date in data set.
-    previousYear = dt.date(2017,8,23) - dt.timedelta(days=365)
+    previous_year = dt.date(2017,8,23) - dt.timedelta(days=365)
     #previousYear
 
     # Perform a query to retrive the temperatures from most active station from the past year
     results = session.query(measurement.tobs).\
             filter(measurement.station == 'USC00519281').\
-            filter(measurement.date >= previousYear).all()
+            filter(measurement.date >= previous_year).all()
     session.close()
 
-    temperatureList = list(np.ravel(results))
+    temperature_list = list(np.ravel(results))
 
     # return the list of temperatures
-    return jsonify(temperatureList)
+    return jsonify(temperature_list)
 
 # /api/v1.0/start/end and /api/v1.0/start routes
 @app.route("/api/v1.0/<start>")
@@ -107,36 +108,36 @@ def dateStats(start=None, end=None):
     selection = [func.min(measurement.tobs), func.max(measurement.tobs), func.avg(measurement.tobs)]
 
     if not end:
-        startDate = dt.datetime.strptime(start, "%m%d%Y")
+        start_date = dt.datetime.strptime(start, "%m%d%Y")
 
-        results = session.query(*selection).filter(measurement.date >= startDate).all()
+        results = session.query(*selection).filter(measurement.date >= start_date).all()
 
         session.close()
 
-        temperatureList = list(np.ravel(results))
+        temperature_list = list(np.ravel(results))
 
         # return the list of temperatures
-        return jsonify(temperatureList)
+        return jsonify(temperature_list)
     
     else:
-        startDate = dt.datetime.strptime(start, "%m%d%Y")
-        endDate = dt.datetime.strptime(end, "%m%d%Y")
+        start_date = dt.datetime.strptime(start, "%m%d%Y")
+        end_date = dt.datetime.strptime(end, "%m%d%Y")
 
         results = session.query(*selection)\
-            .filter(measurement.date >= startDate)\
-            .filter(measurement.date <= endDate).all()
+            .filter(measurement.date >= start_date)\
+            .filter(measurement.date <= end_date).all()
         
         session.close()
 
-        temperatureList = list(np.ravel(results))
+        temperature_list = list(np.ravel(results))
 
         # return the list of temperatures
-        return jsonify(temperatureList)
+        return jsonify(temperature_list)
     
 
 #################################################
 # app launcher
 #################################################
 if __name__ == '__main__':
-    # app.run(debug=True)
-    app.run()
+    app.run(debug=True)
+    # app.run()
